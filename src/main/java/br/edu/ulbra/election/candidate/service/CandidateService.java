@@ -23,7 +23,7 @@ public class CandidateService {
     private final ModelMapper modelMapper;
 
     private static final String MESSAGE_INVALID_ID = "Invalid id";
-    private static final String MESSAGE_VOTER_NOT_FOUND = "Voter not found";
+    private static final String MESSAGE_CANDIDATE_NOT_FOUND = "Candidate not found";
 
     @Autowired
     public CandidateService(CandidateRepository candidateRepository, ModelMapper modelMapper){
@@ -52,7 +52,7 @@ public class CandidateService {
 
         Candidate candidate = candidateRepository.findById(candidateId).orElse(null);
         if (candidate == null){
-            throw new GenericOutputException(MESSAGE_VOTER_NOT_FOUND);
+            throw new GenericOutputException(MESSAGE_CANDIDATE_NOT_FOUND);
         }
 
         return modelMapper.map(candidate, CandidateOutput.class);
@@ -66,7 +66,7 @@ public class CandidateService {
 
         Candidate candidate = candidateRepository.findById(candidateId).orElse(null);
         if (candidate == null){
-            throw new GenericOutputException(MESSAGE_VOTER_NOT_FOUND);
+            throw new GenericOutputException(MESSAGE_CANDIDATE_NOT_FOUND);
         }
 
         //candidate.setEmail(voterInput.getEmail());
@@ -90,27 +90,41 @@ public class CandidateService {
 
         Candidate candidate = candidateRepository.findById(candidateId).orElse(null);
         if (candidate == null){
-            throw new GenericOutputException(MESSAGE_VOTER_NOT_FOUND);
+            throw new GenericOutputException(MESSAGE_CANDIDATE_NOT_FOUND);
         }
 
         candidateRepository.delete(candidate);
 
-        return new GenericOutput("Voter deleted");
+        return new GenericOutput("Candidate deleted");
     }
 
-    private void validateInput(CandidateInput voterInput, boolean isUpdate){
-        //if (StringUtils.isBlank(voterInput.getEmail())){
-        //    throw new GenericOutputException("Invalid email");
-        //}
-        //if (StringUtils.isBlank(voterInput.getName())){
-        //    throw new GenericOutputException("Invalid name");
-        //}
-
-       // } else {
-            //if (!isUpdate) {
-              //  throw new GenericOutputException("Password doesn't match");
-            //}
-        //}
+    private void validateInput(CandidateInput candidateInput, boolean isUpdate){
+        if (StringUtils.isBlank(candidateInput.getName())){
+            throw new GenericOutputException("Invalid name");
+        }
+          /*
+        expressões para matches
+        ^ verifica se a expressão começa com
+        (?i: inicia um grupo com case-insensitive
+        [a-z]+ verifica palavras com as letras de a-z até encontrar um espaço (note que após o + tem um espaço)
+        [a-z ]+) verifica palavras com as letras de a-z e espaços, ou seja pode conter mais de uma palavra com espaço até encontrar o final do grupo (grupo para case-insensitive)
+        $ verifica se a string termina exatamente conforme a expressão
+         */
+        if (!candidateInput.getName().matches("^(?i:[a-z]+ [a-z ]+)$")){
+            throw new GenericOutputException("Need a last name");
+        }
+        if (candidateInput.getName().length() < 5){
+            throw new GenericOutputException("Invalid name. Min. 5 Letters");
+        }
+        if (StringUtils.isBlank(candidateInput.getElection_id().toString())){
+            throw new GenericOutputException("Invalid election id");
+        }
+        if (StringUtils.isBlank(candidateInput.getNumber().toString())){
+            throw new GenericOutputException("Invalid number");
+        }
+        if (StringUtils.isBlank(candidateInput.getParty_id().toString())){
+            throw new GenericOutputException("Invalid party id");
+        }
     }
 
 }

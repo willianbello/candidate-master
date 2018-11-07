@@ -22,6 +22,10 @@ public class Candidate {
     @Column(unique = true, nullable = false)
     private Long party_id;
 
+    public Long getId() { return id; }
+
+    public void setId(Long id) { this.id = id; }
+
     public String getName() {
         return name;
     }
